@@ -117,6 +117,7 @@ module Puppet
     end
 
     # Parse the config file for this process.
+
     def self.parse_config
         Puppet.settings.parse
     end
