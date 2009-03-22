@@ -7,6 +7,7 @@ require File.dirname(__FILE__) + '/../../../../lib/puppet/provider/user/useradd_
 
 class TestUserProvider < Test::Unit::TestCase
 	include WindowsTest
+    include Puppet::Util::Windows
 
 	def user_provider(resource_configuration)
 		Puppet::Type::User::ProviderUseradd_win.new.tap {|provider| provider.resource = resource_configuration }
@@ -25,7 +26,7 @@ class TestUserProvider < Test::Unit::TestCase
 
 		assert_nothing_raised { provider.create }
 
-		user = Windows::User.new(username)
+		user = User.new(username)
 		assert(user.password_is?(password), "Password of user #{username} should be #{password}")
 		user.groups.tap {|groups|
 			expected_groups.each {|expected_group| assert(groups.include?(expected_group), "User should be a member of #{expected_group}") }
