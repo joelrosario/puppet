@@ -1,12 +1,10 @@
 require 'puppet/provider'
-require 'puppet/util/windows_system'
-
-raise "ERROR: A windowsuser resource can only be configured on Windows. This OS is is #{Facter['kernel'].value}" if Facter['kernel'].value != 'windows'
+require 'puppet/util/windows_system' if Puppet.features.windows?
 
 Puppet::Type.type(:user).provide :useradd_win do
     desc "User management for windows"
 
-    confine :operatingsystem => :windows
+    confine :true => Puppet.features.windows?
 
     has_features :manages_passwords
 

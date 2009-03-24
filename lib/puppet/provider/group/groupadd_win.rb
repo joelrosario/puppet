@@ -1,9 +1,9 @@
-require 'puppet/util/windows_system'
+require 'puppet/util/windows_system' if Puppet.features.windows?
 
 Puppet::Type.type(:group).provide :groupadd_win do
     desc "Group management for windows"
 
-    confine :operatingsystem => :windows
+    confine :true => Puppet.features.windows?
 
     has_features :manages_members
 
