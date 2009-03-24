@@ -1,18 +1,18 @@
-if Facter.operatingsystem == "windows"
-	require 'win32ole'
-	require 'Win32API'
+if Puppet.features.windows?
+    require 'win32ole'
+    require 'Win32API'
 end
 
 module Puppet::Util::ADSI
-	def self.connectable?(uri)
-		begin
-			adsi_obj = WIN32OLE.connect(uri)
-			return adsi_obj != nil;
-		rescue
-		end
+    def self.connectable?(uri)
+        begin
+            adsi_obj = WIN32OLE.connect(uri)
+            return adsi_obj != nil;
+        rescue
+        end
 
-		return false
-	end
+        return false
+    end
 end
 
 module Puppet::Util::Windows
