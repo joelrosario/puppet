@@ -49,7 +49,6 @@ find(".") do |f|
     end
 end
 
-
 libs = [puppetlibdir, puppettestlibdir, speclibdir]
 desc "Run all specs"
 Spec::Rake::SpecTask.new('all') do |t|
@@ -68,7 +67,7 @@ filemap.each do |dir, files|
     namespace ns do
         files.each do |file|
             Spec::Rake::SpecTask.new(file) do |t|
-                t.spec_files = File.basename(file, '.rb')
+                t.spec_files = Puppet.features.windows? ?file : File.basename(file, '.rb')
                 t.libs = libs
                 t.spec_opts = ['--options', 'spec.opts']
             end
