@@ -787,6 +787,8 @@ module Puppet
 
             begin
                 File.send(method, self[:path])
+            rescue SystemCallError => error
+                return nil
             rescue Errno::ENOENT => error
                 return nil
             rescue Errno::EACCES => error

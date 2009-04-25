@@ -119,6 +119,7 @@ module Puppet
 
         # Just write our content out to disk.
         def sync
+puts "SYNCING CONTENT"
             return_event = @resource.stat ? :file_changed : :file_created
             
             # We're safe not testing for the 'source' if there's no 'should'
