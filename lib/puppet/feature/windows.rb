@@ -7,6 +7,8 @@ Puppet.features.add(:windows) do
         begin
             require 'win32ole'
             require 'Win32API'
+            require 'win32/file'
+
             result = true
         rescue
         end
