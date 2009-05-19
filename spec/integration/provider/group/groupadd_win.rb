@@ -5,8 +5,8 @@ require File.dirname(__FILE__) + '/../../../spec_helper'
 describe "Provider for windows groups" do
     confine :true => Puppet.features.windows?
 
-    require File.dirname(__FILE__) + '/../windowstest'
-    require File.dirname(__FILE__) + '/../../../../lib/puppet/provider/group/groupadd_win.rb'
+    require 'windowstest'
+	Puppet::Type.type(:group).provider(:groupadd_win)
 
     include WindowsTest
 

@@ -5,8 +5,8 @@ require File.dirname(__FILE__) + '/../../../spec_helper'
 describe "Provider for windows users" do
     confine :true => Puppet.features.windows?
 
-    require File.dirname(__FILE__) + '/../windowstest'
-    require File.dirname(__FILE__) + '/../../../../lib/puppet/provider/user/useradd_win.rb'
+    require 'windowstest'
+	Puppet::Type.type(:user).provider(:useradd_win)
 
     include WindowsTest
 
