@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/../../../lib/puppet/util/windows_system.rb'
+#require File.dirname(__FILE__) + '/../../../lib/puppet/util/windows_system.rb'
+require File.dirname(__FILE__) + '/../../lib/puppet/util/windows_system.rb'
 
 module WindowsTest
     include Puppet::Util::Windows
