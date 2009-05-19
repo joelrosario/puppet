@@ -74,7 +74,7 @@ class EventLoop
 
         @notify_src, @notify_snk = IO.pipe
 
-        if !Puppet.features.windows?
+        unless Puppet.features.windows?
             # prevent file descriptor leaks
             @notify_src.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
             @notify_snk.fcntl(Fcntl::F_SETFD, Fcntl::FD_CLOEXEC)
