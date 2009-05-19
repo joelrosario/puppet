@@ -1,6 +1,7 @@
 dir = File.expand_path(File.dirname(__FILE__))
 
 $LOAD_PATH.unshift("#{dir}/")
+$LOAD_PATH.unshift("#{dir}/lib")
 $LOAD_PATH.unshift("#{dir}/../lib")
 $LOAD_PATH.unshift("#{dir}/../test/lib")  # Add the old test dir, so that we can still find our local mocha and spec
 
