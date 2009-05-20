@@ -6,12 +6,11 @@ describe "Provider for windows groups" do
     confine :true => Puppet.features.windows?
 
     require 'windowstest'
-	Puppet::Type.type(:group).provider(:groupadd_win)
-
     include WindowsTest
 
     def group_provider(resource_configuration)
-        provider = Puppet::Type::Group::ProviderGroupadd_win.new
+        #provider = Puppet::Type::Group::ProviderGroupadd_win.new
+        provider = Puppet::Type.type(:group).provider(:groupadd_win).new
         provider.resource = resource_configuration
         return provider
     end
