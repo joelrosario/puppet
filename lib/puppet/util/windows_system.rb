@@ -13,11 +13,13 @@ module Puppet::Util::ADSI
 
         return false
     end
+
+	def self.connect(uri)
+		WIN32OLE.connect(uri)
+	end
 end
 
 module Puppet::Util::Windows
-    include Puppet::Util::ADSI
-
     class Resource
         def Resource.uri(resource_name)
             "#{Computer.resource_uri}/#{resource_name}"
@@ -31,7 +33,7 @@ module Puppet::Util::Windows
         end
 
         def user
-            @user = WIN32OLE.connect(User.resource_uri(@username)) if @user == nil
+            @user = Puppet::Util::ADSI.connect(User.resource_uri(@username)) if @user == nil
             return @user
         end
 
@@ -133,7 +135,7 @@ module Puppet::Util::Windows
         end
 
         def group
-            @group = WIN32OLE.connect(resource_uri) if @group == nil
+            @group = Puppet::Util::ADSI.connect(resource_uri) if @group == nil
             return @group
         end
 
@@ -179,7 +181,7 @@ module Puppet::Util::Windows
         end
 
         def Group.exists?(name)
-            return Puppet::Util::ADSI::connectable?(Group.resource_uri(name))
+            return Puppet::Util::ADSI.connectable?(Group.resource_uri(name))
         end
 
         def Group.delete(name)
@@ -187,12 +189,20 @@ module Puppet::Util::Windows
         end
     end
 
-    class Computer
-        def Computer.name
+    module API
+        include Puppet::Util::ADSI
+
+        def self.GetComputerName
             name = " " * 128
             size = "128"
             Win32API.new('kernel32','GetComputerName',['P','P'],'I').call(name,size)
             return name.unpack("A*")
+        end
+    end
+
+    class Computer
+        def Computer.name
+            API.GetComputerName
         end
 
         def Computer.resource_uri
@@ -201,7 +211,7 @@ module Puppet::Util::Windows
         end
 
         def Computer.api
-            return WIN32OLE.connect(Computer.resource_uri)
+            return Puppet::Util::ADSI.connect(Computer.resource_uri)
         end
 
         def Computer.create(resource_type, name)
