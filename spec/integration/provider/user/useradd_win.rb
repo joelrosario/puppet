@@ -6,12 +6,10 @@ describe "Provider for windows users" do
     confine :true => Puppet.features.windows?
 
     require 'windowstest'
-	Puppet::Type.type(:user).provider(:useradd_win)
-
     include WindowsTest
 
     def user_provider(resource_configuration)
-        provider = Puppet::Type::User::ProviderUseradd_win.new
+        provider = Puppet::Type.type(:user).provider(:useradd_win).new
         provider.resource = resource_configuration
         return provider
     end
