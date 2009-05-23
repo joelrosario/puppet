@@ -31,7 +31,7 @@ Puppet::Type.type(:user).provide :useradd_win do
     end
 
     def groups=(groups)
-        user.set_groups(groups, @resource[:membership] || false)
+        user.set_groups(groups, @resource[:membership] == :minimum)
     end
 
     def create
