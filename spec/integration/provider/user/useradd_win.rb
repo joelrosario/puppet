@@ -38,19 +38,34 @@ describe "Provider for windows users" do
         expected_groups.length.should be_eql(groups.length)
     end
 
-    it 'should set the group membership of an existing user' do
-        expected_groups = ["randomgroup1", "randomgroup2"]
-        username = "testuser"
+    describe "when a user belongs to groups named randomgroup1, randomgroup2," do
+        before(:all) do
+            expected_groups = ["randomgroup1", "randomgroup2"]
+            username = "testuser"
 
-        mkgroups expected_groups
-        mkuser username
+            mkgroups expected_groups
+            mkuser username
 
-        provider = user_provider :name => username
-        provider.groups = expected_groups.join(",")
+            @provider = user_provider :name => username
+            @provider.groups = expected_groups.join(",")
 
-        groups = provider.groups.split(',').collect {|group| group.strip }
-        groups.length.should be_eql(expected_groups.length)
-        groups.each {|group| expected_groups.include?(group).should be_true }
+            groups = @provider.groups.split(',').collect {|group| group.strip }
+            groups.length.should be_eql(expected_groups.length)
+            groups.each {|group| expected_groups.include?(group).should be_true }
+        end
+        
+        describe "after setting membership to randomgroup1 only, " do
+            before(:all) do
+                @provider.groups = "randomgroup1"
+            end
+            
+            it "the user should no more be a member of randomgroup 2" do
+                groups = @provider.groups
+                
+                groups.index(',').should be_nil
+                groups.should be_eql("randomgroup1")
+            end
+        end
     end
 
     it 'should set a users password' do
