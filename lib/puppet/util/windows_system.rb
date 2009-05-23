@@ -38,19 +38,7 @@ module Puppet::Util::Windows
         end
 
         def password_is?(password)
-            fLOGON32_LOGON_NETWORK_CLEARTEXT = 8
-            fLOGON32_PROVIDER_DEFAULT = 0
-
-            logon_user = Win32API.new("advapi32", "LogonUser", ['P', 'P', 'P', 'L', 'L', 'P'], 'L')
-            close_handle = Win32API.new("kernel32", "CloseHandle", ['P'], 'V')
-
-            token = ' ' * 4
-            if logon_user.call(@username, "", password, fLOGON32_LOGON_NETWORK_CLEARTEXT, fLOGON32_PROVIDER_DEFAULT, token) == 1
-                close_handle.call(token.unpack('L')[0])
-                return true
-            end
-
-            return false
+            API.LogonUser(@username, password)
         end
 
         def add_flag(flag_name, value)
@@ -80,14 +68,14 @@ module Puppet::Util::Windows
         end
 
         def add_to_groups(group_names)
-            group_names.each {|name| Group.new(name).add_user(@username) } if group_names.length > 0
+            group_names.each {|name| Group.new(name).add_member(@username) } if group_names.length > 0
         end
 
         def remove_from_groups(group_names)
-            group_names.each {|name| Group.new(name).remove_user(@username) } if group_names.length > 0
+            group_names.each {|name| Group.new(name).remove_member(@username) } if group_names.length > 0
         end
 
-        def set_groups(names, minimal = true)
+        def set_groups(names, minimum = true)
             return if names == nil || names.strip.length == 0
 
             names = names.strip.split(',')
@@ -97,7 +85,7 @@ module Puppet::Util::Windows
             add_to_groups(names_to_add)
 
             names_to_remove = current_groups.find_all {|name| !names.include?(name) }
-            remove_from_groups(names_to_remove) if minimal == false
+            remove_from_groups(names_to_remove) if minimum == false
         end
 
         def User.resource_uri(username)
@@ -137,16 +125,6 @@ module Puppet::Util::Windows
         def group
             @group = Puppet::Util::ADSI.connect(resource_uri) if @group == nil
             return @group
-        end
-
-        def add_user(username)
-            group.Add(User.resource_uri(username))
-            group.SetInfo
-        end
-
-        def remove_user(username)
-            group.Remove(User.resource_uri(username))
-            group.SetInfo
         end
 
         def add_member(name)
@@ -190,13 +168,27 @@ module Puppet::Util::Windows
     end
 
     module API
-        include Puppet::Util::ADSI
-
         def self.GetComputerName
             name = " " * 128
             size = "128"
             Win32API.new('kernel32','GetComputerName',['P','P'],'I').call(name,size)
             return name.unpack("A*")
+        end
+
+        def self.LogonUser(username, password)
+            fLOGON32_LOGON_NETWORK_CLEARTEXT = 8
+            fLOGON32_PROVIDER_DEFAULT = 0
+
+            logon_user = Win32API.new("advapi32", "LogonUser", ['P', 'P', 'P', 'L', 'L', 'P'], 'L')
+            close_handle = Win32API.new("kernel32", "CloseHandle", ['P'], 'V')
+
+            token = ' ' * 4
+            if logon_user.call(username, "", password, fLOGON32_LOGON_NETWORK_CLEARTEXT, fLOGON32_PROVIDER_DEFAULT, token) == 1
+                close_handle.call(token.unpack('L')[0])
+                return true
+            end
+
+            return false
         end
     end
 
