@@ -8,33 +8,42 @@ Puppet::Type.type(:user).provide :useradd_win do
 
     has_features :manages_passwords
 
+    def user
+        @user = Puppet::Util::Windows::User.new(name) unless defined?(@user)
+        @user
+    end
+
+    def name
+        @resource[:name]
+    end
+
     def password
-        name, password = @resource[:name], @resource[:password]
-        Puppet::Util::Windows::User.new(name).password_is?(password) ?password :"" rescue :absent
+        password = @resource[:password]
+        user.password_is?(password) ?password :"" rescue :absent
     end
 
     def password=(pwd)
-        Puppet::Util::Windows::User.new(@resource[:name]).password = @resource[:password]
+        user.password = @resource[:password]
     end
 
     def groups
-        Puppet::Util::Windows::User.new(@resource[:name]).groups.join(',') rescue :absent
+        user.groups.join(',') rescue :absent
     end
 
     def groups=(groups)
-        Puppet::Util::Windows::User.new(@resource[:name]).set_groups(groups)
+        user.set_groups(groups, @resource[:membership] || false)
     end
 
     def create
-        user = Puppet::Util::Windows::User.create(@resource[:name], @resource[:password])
+        @user = Puppet::Util::Windows::User.create(name, @resource[:password])
         user.set_groups(@resource[:groups], @resource[:membership] == :minimum)
     end
 
     def exists?
-        return Puppet::Util::Windows::User.exists?(@resource[:name])
+        return Puppet::Util::Windows::User.exists?(name)
     end
 
     def delete
-        Puppet::Util::Windows::User.delete(@resource[:name])
+        Puppet::Util::Windows::User.delete(name)
     end
 end
