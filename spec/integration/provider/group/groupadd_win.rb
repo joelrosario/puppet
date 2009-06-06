@@ -7,15 +7,37 @@ describe "Provider for windows groups" do
 
     require 'windowstest'
     include WindowsTest
+    
+    Puppet::Type.type(:user).provider(:useradd_win)
+    #require File.dirname(__FILE__) + '/../../../../puppet/lib/util/windows_system'
 
     def group_provider(resource_configuration)
-        #provider = Puppet::Type::Group::ProviderGroupadd_win.new
         provider = Puppet::Type.type(:group).provider(:groupadd_win).new
         provider.resource = resource_configuration
         return provider
     end
 
+    before(:each) do
+        @users_to_delete = []
+        @groups_to_delete = []
+    end
+    
+    def create_test_users(usernames)
+        password = "qwertyuiop"
+        
+        usernames.flatten.each do |name|
+            Puppet::Util::Windows::User.create(name, password)
+            @users_to_delete << name
+        end
+    end
+
+    def delete_test_users
+        @users_to_delete.each {|name| Puppet::Util::Windows::User.delete(name) }
+        @users_to_delete = []
+    end
+
     after(:each) do
+        delete_test_users
         clear
     end   
 
@@ -24,7 +46,8 @@ describe "Provider for windows groups" do
         register_group groupname
 
         expected_members = ["test1", "test2"]
-        mkusers(expected_members)
+        #mkusers(expected_members)
+        create_test_users(expected_members)
 
         provider = group_provider :name => groupname, :members => ['test1', 'test2']
         provider.create
