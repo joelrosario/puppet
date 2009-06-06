@@ -66,10 +66,10 @@ describe "User management for Windows: useradd_win" do
     
     it 'should be able to test whether a user exists' do
         Puppet::Util::Windows::User.expects(:exists?).with('testuser').returns true
-        @provider.exists?.should be_true
+        @provider.should be_exists
 
         Puppet::Util::Windows::User.expects(:exists?).with('testuser').returns false
-        @provider.exists?.should be_false
+        @provider.should_not be_exists
     end
     
     it 'should be able to delete a user' do
