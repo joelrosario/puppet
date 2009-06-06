@@ -11,60 +11,45 @@ describe "Provider for windows groups" do
     Puppet::Type.type(:user).provider(:useradd_win)
     #require File.dirname(__FILE__) + '/../../../../puppet/lib/util/windows_system'
 
+    before(:each) do
+        @users_to_delete = []
+        @groups_to_delete = []
+    end
+    
+    after(:each) do
+        delete_test_users
+        delete_test_groups
+    end   
+
     def group_provider(resource_configuration)
         provider = Puppet::Type.type(:group).provider(:groupadd_win).new
         provider.resource = resource_configuration
         return provider
     end
 
-    before(:each) do
-        @users_to_delete = []
-        @groups_to_delete = []
-    end
-    
-    def create_test_users(usernames)
-        password = "qwertyuiop"
-        
-        usernames.flatten.each do |name|
-            Puppet::Util::Windows::User.create(name, password)
-            @users_to_delete << name
-        end
-    end
-
-    def delete_test_users
-        @users_to_delete.each {|name| Puppet::Util::Windows::User.delete(name) }
-        @users_to_delete = []
-    end
-
-    after(:each) do
-        delete_test_users
-        clear
-    end   
-
     it 'should create a group with configured members' do
         groupname = "randomgroup"
-        register_group groupname
+        delete_group_later groupname
 
         expected_members = ["test1", "test2"]
-        #mkusers(expected_members)
-        create_test_users(expected_members)
+        create_test_users expected_members
 
         provider = group_provider :name => groupname, :members => ['test1', 'test2']
         provider.create
 
-        should_have_no_missing_member(group(groupname), expected_members)
+        group(groupname).members.sort.should be_eql(expected_members.sort)
     end
 
     it 'should set a groups members' do
         groupname = "randomgroup"
         expected_members = ["test1", "test2"]
 
-        testgroup = mkgroup(groupname)
-        mkusers(expected_members)
+        testgroup = create_test_groups(groupname)
+        create_test_users(expected_members)
 
         provider = group_provider :name => groupname, :members => ['test1', 'test2']
         provider.members = ['test1', 'test2']
 
-        should_have_no_missing_member(testgroup, expected_members)
+        group(groupname).members.sort.should be_eql(expected_members.sort)
     end
 end
