@@ -47,9 +47,9 @@ describe "Group management for Windows: useradd_win" do
     
     it 'should be able to verify that a group exists' do
         Puppet::Util::Windows::Group.expects(:exists?).with('testgroup').returns true
-        @provider.exists?.should be_true
+        @provider.should be_exists
         
         Puppet::Util::Windows::Group.expects(:exists?).with('testgroup').returns false
-        @provider.exists?.should be_false
+        @provider.should_not be_exists
     end
 end
