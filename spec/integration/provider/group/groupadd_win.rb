@@ -9,7 +9,6 @@ describe "Provider for windows groups" do
     include WindowsTest
     
     Puppet::Type.type(:user).provider(:useradd_win)
-    #require File.dirname(__FILE__) + '/../../../../puppet/lib/util/windows_system'
 
     before(:each) do
         @users_to_delete = []
